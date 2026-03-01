@@ -2,34 +2,39 @@ name: Build PayURLHook Tweak
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
+
+env:
+  THEOS: /Users/runner/theos
 
 jobs:
   build:
-    runs-on: macos-13
-    
+    runs-on: macos-latest
+
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Theos
-      run: |
-        set -e
-        brew install ldid xz
-        git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
-        curl -LO https://github.com/theos/sdks/archive/master.zip
-        unzip -q master.zip
-        mv sdks-master/*.sdk $GITHUB_WORKSPACE/theos/sdks/
-        rm -rf sdks-master master.zip
-        ls $GITHUB_WORKSPACE/theos/sdks/
+    - name: Install ldid
+      run: brew install ldid
 
-    - name: Build deb
-      env:
-        THEOS: ${{ github.workspace }}/theos
+    - name: Clone Theos
       run: |
-        set -e
-        make package FINALPACKAGE=1
+        git clone --recursive https://github.com/theos/theos.git $THEOS
+        echo "Theos cloned to $THEOS"
+
+    - name: Download iOS SDKs
+      run: |
+        curl -sL https://github.com/theos/sdks/archive/master.tar.gz | tar -xz
+        mv sdks-master/*.sdk $THEOS/sdks/
+        rm -rf sdks-master
+        echo "Available SDKs:"
+        ls $THEOS/sdks/
+
+    - name: Build deb package
+      run: make package FINALPACKAGE=1
 
     - name: Upload deb
       uses: actions/upload-artifact@v4
