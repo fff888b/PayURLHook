@@ -1,0 +1,9 @@
+Package: com.hook.payurlhook
+Name: PayURLHook
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Hook and save payment URLs (WeChat/Alipay) when apps redirect to payment
+Author: dev
+Maintainer: dev
+Section: Tweaks
+Depends: mobilesubstrate
