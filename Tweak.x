@@ -21,9 +21,10 @@ static void savePaymentURL(NSURL *url) {
     @try {
         NSFileManager *fm = [NSFileManager defaultManager];
         if (![fm fileExistsAtPath:kLogDirectory]) {
+            NSDictionary *attrs = @{NSFilePosixPermissions: @0777};
             [fm createDirectoryAtPath:kLogDirectory
           withIntermediateDirectories:YES
-                           attributes:nil
+                           attributes:attrs
                                 error:nil];
         }
 
@@ -103,7 +104,8 @@ static void savePaymentURL(NSURL *url) {
         NSFileManager *fm = [NSFileManager defaultManager];
         NSString *dir = @"/var/mobile/Documents/PayURLHook";
         if (![fm fileExistsAtPath:dir]) {
-            [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+            NSDictionary *attrs = @{NSFilePosixPermissions: @0777};
+            [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:attrs error:nil];
         }
         NSString *markerFile = @"/var/mobile/Documents/PayURLHook/loaded.txt";
         NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
