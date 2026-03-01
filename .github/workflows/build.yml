@@ -7,30 +7,28 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
     - name: Setup Theos
-      uses: actions/checkout@v4
-      with:
-        repository: theos/theos
-        path: theos
-        submodules: recursive
-
-    - name: Download iOS SDK
       run: |
+        set -e
+        brew install ldid xz
+        git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
         curl -LO https://github.com/theos/sdks/archive/master.zip
         unzip -q master.zip
         mv sdks-master/*.sdk $GITHUB_WORKSPACE/theos/sdks/
         rm -rf sdks-master master.zip
+        ls $GITHUB_WORKSPACE/theos/sdks/
 
     - name: Build deb
       env:
         THEOS: ${{ github.workspace }}/theos
       run: |
+        set -e
         make package FINALPACKAGE=1
 
     - name: Upload deb
