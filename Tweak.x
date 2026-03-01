@@ -96,5 +96,28 @@ static void savePaymentURL(NSURL *url) {
 
 
 %ctor {
-    NSLog(@"[PayURLHook] Loaded in %@", [[NSBundle mainBundle] bundleIdentifier]);
+    @autoreleasepool {
+        NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier] ?: @"unknown";
+        NSLog(@"[PayURLHook] Loaded in %@", bundleID);
+
+        NSFileManager *fm = [NSFileManager defaultManager];
+        NSString *dir = @"/var/mobile/Documents/PayURLHook";
+        if (![fm fileExistsAtPath:dir]) {
+            [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+        }
+        NSString *markerFile = @"/var/mobile/Documents/PayURLHook/loaded.txt";
+        NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
+        [fmt setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        NSString *ts = [fmt stringFromDate:[NSDate date]];
+        NSString *entry = [NSString stringWithFormat:@"[%@] Loaded in %@\n", ts, bundleID];
+
+        if ([fm fileExistsAtPath:markerFile]) {
+            NSFileHandle *fh = [NSFileHandle fileHandleForWritingAtPath:markerFile];
+            [fh seekToEndOfFile];
+            [fh writeData:[entry dataUsingEncoding:NSUTF8StringEncoding]];
+            [fh closeFile];
+        } else {
+            [entry writeToFile:markerFile atomically:YES encoding:NSUTF8StringEncoding error:nil];
+        }
+    }
 }
